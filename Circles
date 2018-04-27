@@ -1,0 +1,53 @@
+import processing.sound.*;
+
+PImage img;
+SoundFile soundfile;
+FFT fft;
+
+int bands = 512;
+float scale = 2000.0;
+
+void setup(){
+  size(800,600);
+  noStroke();
+  frameRate(60);
+  //img = loadImage("5650f35f6c029b11bd8e2fedc40d94c8.jpg");
+  blendMode(EXCLUSION);
+  colorMode(HSB,360,100,100,100);
+
+  soundfile = new SoundFile(this,"04.mp3");
+  soundfile.loop();
+  fft = new FFT(this,bands);
+  fft.input(soundfile);
+}
+
+void draw(){
+  background(0,127);
+  fft.analyze();
+  //image(img,0,0);
+  float w = width/float(bands)/2.0;
+  
+  for(int i = 0;i < bands;i++){
+    //float hue = 360/float(bands)*i; 
+    float hue = 360/float(bands)*i*2; 
+    float hue_man = 360/float(bands)*i*2; 
+    float hue_woman = 360/float(bands)*i*10; 
+
+    fill(hue,100,60);
+    float diameter = fft.spectrum[i]*scale;
+    float diameter_man = diameter*random(0.3,0.7);
+    float diameter_woman = diameter*random(0.4,0.6);
+    //ellipse(random(0,width),random(0,height),diameter,diameter);
+
+    blendMode(ADD);
+    fill(hue_man,100,50);
+    ellipse(width/4.0,height/2.0,diameter_man,diameter_man);
+    //fill(hue,100,6);
+    //ellipse(width/2.0,height/2.0,diameter/2,diameter/2);
+    blendMode(SCREEN);
+
+    fill(hue_woman,60,100,50);
+    ellipse(3*width/4.0,height/2.0,diameter_woman,diameter_woman);    
+  }
+  saveFrame("frames/######.tif");
+}
